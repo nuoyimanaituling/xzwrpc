@@ -21,7 +21,5 @@ public class TestApp1Main {
         }
         Thread.sleep(300000);
 
-//        factory.stop();
-
     }
 }

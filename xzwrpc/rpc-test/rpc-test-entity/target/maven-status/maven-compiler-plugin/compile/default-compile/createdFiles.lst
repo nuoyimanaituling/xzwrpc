@@ -1,0 +1,10 @@
+io\xzw\xzwrpc\entity\User.class
+io\xzw\xzwrpc\entity\ClassInfo.class
+io\xzw\xzwrpc\entity\ClassInfo$ClassInfoBuilder.class
+io\xzw\xzwrpc\entity\Order$OrderBuilder.class
+io\xzw\xzwrpc\entity\Order.class
+io\xzw\xzwrpc\entity\User$UserBuilder.class
+io\xzw\xzwrpc\entity\ReturnT.class
+io\xzw\xzwrpc\service\UserService.class
+io\xzw\xzwrpc\service\OrderService.class
+io\xzw\xzwrpc\service\impl\UserServiceImpl.class
