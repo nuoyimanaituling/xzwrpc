@@ -1,4 +1,5 @@
 # xzwrpc
-这是一个在不断完善的rpc
+master分支：网络协议走http，仅仅实现了Rpc的远程调用功能
+v3:在Rpc的基础上增加了服务治理的相关功能
+comment_version: 提供了详细的注释
 
-第三个版本在v3分支
