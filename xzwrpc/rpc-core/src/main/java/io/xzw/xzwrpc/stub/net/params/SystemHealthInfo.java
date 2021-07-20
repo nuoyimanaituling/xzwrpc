@@ -5,19 +5,29 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 
+/**
+ * @author xzw
+ */
 @Data
 public class SystemHealthInfo {
 
-    // 延迟参数
+    /**
+     * 延迟参数
+     */
     private long latency;
-
-    // cpu使用率
+    /**
+     * cpu使用率
+     */
     private BigDecimal cpuLoadPercent;
 
-    // 内存使用率
+    /**
+     * 内存使用率
+     */
     private BigDecimal memLoadPercent;
 
-    //响应时间
+    /**
+     * 响应时间
+     */
     private long respSendTime;
 
     public SystemHealthInfo(){}

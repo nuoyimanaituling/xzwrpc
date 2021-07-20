@@ -1,26 +1,21 @@
 package io.xzw.xzwrpc.util;
-
-
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 分析系统的cpu使用率，与内存使用率
+ * @author xzw
  */
 public class OSHealthCheck {
-
 
     /**
      * 获取当前系统的cpu负载
      */
     public static BigDecimal getCpuLoad(){
-
-
         SystemInfo systemInfo = new SystemInfo();
         CentralProcessor processor = systemInfo.getHardware().getProcessor();
         long[] prevTicks = processor.getSystemCpuLoadTicks();
@@ -39,7 +34,7 @@ public class OSHealthCheck {
 
     /**
      * 获取内存使用率
-     * @return
+     * @return 返回内存使用率
      */
     public static BigDecimal getMemLoad(){
 

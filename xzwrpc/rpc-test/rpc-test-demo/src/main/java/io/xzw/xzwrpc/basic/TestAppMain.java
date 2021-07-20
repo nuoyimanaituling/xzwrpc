@@ -5,6 +5,9 @@ import io.xzw.xzwrpc.service.UserService;
 import io.xzw.xzwrpc.stub.invoker.factory.RpcInvokerFactory;
 
 
+/**
+ * @author xzw
+ */
 public class TestAppMain {
 
     public static void main(String[] args) throws InterruptedException {

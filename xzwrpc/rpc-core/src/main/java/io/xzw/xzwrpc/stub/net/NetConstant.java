@@ -1,18 +1,16 @@
 package io.xzw.xzwrpc.stub.net;
 
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import io.xzw.xzwrpc.exception.ServerClosingException;
-
 import java.math.BigDecimal;
-
-
 import java.util.Collections;
 import java.util.List;
 
-// 定义网络通信常量：网络层通信，通信常量
+/**
+ * 定义网络通信常量：网络层通信，通信常量
+ * @author xzw
+ */
 public class NetConstant {
-
 
     private NetConstant() {}
 

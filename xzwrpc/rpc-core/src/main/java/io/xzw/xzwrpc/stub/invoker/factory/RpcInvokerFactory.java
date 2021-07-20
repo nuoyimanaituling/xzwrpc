@@ -49,37 +49,40 @@ public class RpcInvokerFactory {
         return stub;
     }
 
-//    /**
-//     * 直接通过refBean类型创建对象,这是补充spring功能时的优化
-//     */
-//    public Object createStubByRefBean(RpcRefBean refBean){
-//        List<String> availableUrls =registerUnit.findAvailableUrls(refBean.getTargetFace(),refBean.getVersion());
-//        refBean.setAvailUrls(availableUrls);
-//    }
+
+    /**
+     * @param clazz 服务类型
+     * @param version 版本号
+     * @param <T> 泛型
+     * @return 返回代理类型
+     */
     public <T> T createStubByClass(Class<T> clazz,String version){
-        List<String> availableUrls =registerUnit.findAvailableUrls(clazz,version);
-        List<Class<?>> retryException =new ArrayList<>();
+        List<String> availableUrls = registerUnit.findAvailableUrls(clazz,version);
+        List<Class<?>> retryException = new ArrayList<>();
         retryException.add(TimeoutException.class);
         RefBean refBean = RefBean.builder().targetFace(clazz).availUrls(availableUrls)
                 .version("1.0").retryTimes(3).timeout(60000).retryExceptions(retryException).build();
-        Object stub =createStub(refBean);
+        Object stub = createStub(refBean);
         return clazz.cast(stub);
     }
+
+    /**
+     * 客户端启动
+     * @param zkConnStr zk地址
+     */
     public void start(String zkConnStr){
         try {
-            this.invokerUnit =new InvokerClientCenter(HessianSerializer.class, NettyClientInvoker.class);
-            /**
-             * 启动客户端的server
-             */
+            this.invokerUnit = new InvokerClientCenter(HessianSerializer.class, NettyClientInvoker.class);
+            // 启动客户端的server
             this.invokerUnit.afterSetProperties();
             /** 启动的时候就启动Spi
-             * zk启动
+             *  zk启动
              * 传给invokerRegisterUnit是因为触发删除事件的时候需要根据invokerUnit获得clientCore
              */
-            this.registerUnit =new InvokerRegisterCenter(zkConnStr,this.invokerUnit.getClientCore());
+            this.registerUnit = new InvokerRegisterCenter(zkConnStr,this.invokerUnit.getClientCore());
             this.registerUnit.afterSetProperties();
             SpiPluginLoader.load();
-            this.loadBalance =new WeightRandomLoadBalance();
+            this.loadBalance = new WeightRandomLoadBalance();
             this.loadBalance.setDataMap(registerUnit.getZkData());
         } catch (Exception e) {
             e.printStackTrace();

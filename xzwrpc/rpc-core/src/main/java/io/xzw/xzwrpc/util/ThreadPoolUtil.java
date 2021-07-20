@@ -3,25 +3,25 @@ import io.xzw.xzwrpc.exception.XzwRpcException;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * @author xzw
+ */
 public class ThreadPoolUtil {
 
-    private static final int CORE_SIZE =32;
-    private static final int MAX_SIZE =40;
-    private static final long KEEP_ALIVE_TIME =60;
+    private static final int CORE_SIZE = 32;
+    private static final int MAX_SIZE = 40;
+    private static final long KEEP_ALIVE_TIME = 60;
 
-    private static final Integer QUEUE_CAPACITY =4096;
+    private static final Integer QUEUE_CAPACITY = 4096;
 
     private volatile static ExecutorService DEFAULT_CLIENT_EXECUTOR;
 
     private volatile static ExecutorService DEFAULT_SERVER_EXECUTOR;
     private static final List<ExecutorService> EXECUTOR_POOLS =new CopyOnWriteArrayList<>();
-    private ThreadPoolUtil(){};
-    // 创建执行任务的线程池
+    private ThreadPoolUtil(){}
     /**
-     *
-     * @param poolName
-     * @return
-     *
+     * @param poolName 线程池名字
+     * @return 创建执行任务的线程池
      */
     public static ExecutorService createPool(String poolName){
         ThreadPoolExecutor poolExecutor =new ThreadPoolExecutor(CORE_SIZE,MAX_SIZE,KEEP_ALIVE_TIME,
@@ -29,9 +29,7 @@ public class ThreadPoolUtil {
             Thread thread =new Thread(r,poolName+"-worker");
             thread.setUncaughtExceptionHandler(((t, e) -> e.printStackTrace()));
             return thread;
-            /**
-             * 定义抛出的异常信息
-             */
+            // 定义抛出的异常信息
         },(r, executor) -> {
 
             throw new XzwRpcException("thread pool["+poolName+"] is exhausted");

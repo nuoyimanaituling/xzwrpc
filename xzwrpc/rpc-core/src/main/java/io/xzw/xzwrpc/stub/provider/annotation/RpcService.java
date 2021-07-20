@@ -8,9 +8,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * @author xzw
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface RpcService {
+
     Class<? extends ServerRunnable>[] init() default {};
+
     String version() default "";
 }

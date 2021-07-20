@@ -7,6 +7,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 
+/**
+ * @author xzw
+ */
 @Data
 @Builder
 public class Order implements Serializable {

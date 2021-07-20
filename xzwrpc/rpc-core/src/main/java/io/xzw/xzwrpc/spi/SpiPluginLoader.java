@@ -1,18 +1,19 @@
 package io.xzw.xzwrpc.spi;
 
-
 import io.xzw.xzwrpc.router.common.Filter;
 import io.xzw.xzwrpc.router.common.Router;
 import lombok.extern.slf4j.Slf4j;
-import java.io.File;
 import java.util.*;
+/** spi加载类
+ * @author xzw
+ */
 @Slf4j
 public class SpiPluginLoader {
-    private static final List<Filter> FILTER_LIST =new ArrayList<>();
-    private static final Map<Class<?>, Router> ROUTER_MAP =new HashMap<>();
+    private static final List<Filter> FILTER_LIST = new ArrayList<>();
+    private static final Map<Class<?>, Router> ROUTER_MAP = new HashMap<>();
     public static void load(){
-        ServiceLoader<Filter> filters =ServiceLoader.load(Filter.class);
-        Iterator<Filter> iterator =filters.iterator();
+        ServiceLoader<Filter> filters = ServiceLoader.load(Filter.class);
+        Iterator<Filter> iterator = filters.iterator();
 
         if (!iterator.hasNext()){
             log.debug("no rpc filter plugin found");
@@ -20,13 +21,13 @@ public class SpiPluginLoader {
         while (iterator.hasNext()){
             FILTER_LIST.add(iterator.next());
         }
-        ServiceLoader<Router> routers=ServiceLoader.load(Router.class);
-        Iterator<Router> routerIterator =routers.iterator();
+        ServiceLoader<Router> routers = ServiceLoader.load(Router.class);
+        Iterator<Router> routerIterator = routers.iterator();
         if(!iterator.hasNext()){
             log.debug("no rpc router plugin found");
         }
         while (routerIterator.hasNext()){
-            Router router =routerIterator.next();
+            Router router = routerIterator.next();
             ROUTER_MAP.put(router.getClass(),router);
         }
     }

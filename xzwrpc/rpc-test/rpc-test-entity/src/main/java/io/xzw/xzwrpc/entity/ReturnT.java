@@ -3,6 +3,9 @@ package io.xzw.xzwrpc.entity;
 import lombok.Data;
 
 
+/**
+ * @author xzw
+ */
 @Data
 public class ReturnT<T> {
 

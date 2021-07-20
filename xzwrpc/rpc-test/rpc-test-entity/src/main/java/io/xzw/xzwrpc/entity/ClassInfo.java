@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * @author xzw
+ */
 @Data
 @Builder
 public class ClassInfo implements Serializable {

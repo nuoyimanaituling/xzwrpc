@@ -11,10 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author xzw
+ */
 @Slf4j
 public class RpcServerMain {
 
     private final ProviderRegisterCenter registerUnit;
+
     private final ProviderServerCenter serverStubUnit;
 
     private final int availablePort;
@@ -22,18 +26,17 @@ public class RpcServerMain {
     private final List<RegisterService> clazzList;
 
     private RpcServerMain(int port, String zkConnStr){
-        this.availablePort =7248;
-        //this.availablePort =port;
+        this.availablePort = port;
         this.clazzList =new ArrayList<>();
-        this.registerUnit  =new ProviderRegisterCenter(zkConnStr,this.availablePort);
-        this.serverStubUnit =new ProviderServerCenter(port);
+        this.registerUnit  = new ProviderRegisterCenter(zkConnStr,this.availablePort);
+        this.serverStubUnit = new ProviderServerCenter(port);
     }
     private RpcServerMain(String zkConnStr) {
-        int defaultPort =7248;
+        int defaultPort = 7248;
         this.availablePort = NetUtil.findAvailablePort(defaultPort);
-        this.clazzList =new ArrayList<>();
-        this.registerUnit  =new ProviderRegisterCenter(zkConnStr,this.availablePort);
-        this.serverStubUnit =new ProviderServerCenter(availablePort);
+        this.clazzList = new ArrayList<>();
+        this.registerUnit  = new ProviderRegisterCenter(zkConnStr,this.availablePort);
+        this.serverStubUnit = new ProviderServerCenter(availablePort);
     }
     public void run(){
         start();
@@ -67,8 +70,9 @@ public class RpcServerMain {
         return new ServerBuilder();
     }
 
+
     /**
-     * 通过ServerBuilder
+     * 通过ServerBuilder构建启动类
      */
     public static class ServerBuilder{
 

@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.Collections;
 
 
+/**
+ * @author xzw
+ */
 @RpcService()
 public class UserServiceImpl implements UserService {
 

@@ -8,6 +8,9 @@ import io.xzw.xzwrpc.stub.net.params.RpcRequest;
 
 import java.util.Map;
 
+/**
+ * @author xzw
+ */
 public class NettyClient implements Client {
     private final ConnectServer connectServer;
     private final Map<String, FutureResp> respPool;
@@ -17,12 +20,11 @@ public class NettyClient implements Client {
     }
     @Override
     public FutureResp send(RpcRequest request) {
-        FutureResp resp =new FutureResp();
+        FutureResp resp = new FutureResp();
         // respPool存放的是发送请求的异步返回的结果，这个respPool最后也会作为参数，传递给clientHandler
         this.respPool.put(request.getRequestId(),resp);
-        /**
-         * 异步发送，发送之后直接返回结果
-         */
+
+        // 异步发送，发送之后直接返回结果
         connectServer.sendAsync(request);
         return resp;
     }

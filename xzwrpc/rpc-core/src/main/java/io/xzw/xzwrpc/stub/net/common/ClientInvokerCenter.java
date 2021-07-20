@@ -9,20 +9,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+/**
+ * @author xzw
+ */
 @Slf4j
 public abstract class ClientInvokerCenter implements ConnectionManager {
 
-    protected final Map<String,ConnectServer> clientServers =new ConcurrentHashMap<>();
+    protected final Map<String,ConnectServer> clientServers = new ConcurrentHashMap<>();
 
-    protected final HealthAnalyzer availableAnalyzer =new HealthAnalyzer();
-    /**
-     * respPool 这个参数比较复杂，在多处地方使用
-     */
-    protected final Map<String, FutureResp> respPool =new ConcurrentHashMap<>();
+    protected final HealthAnalyzer availableAnalyzer = new HealthAnalyzer();
+
+    protected final Map<String, FutureResp> respPool = new ConcurrentHashMap<>();
     /**
      * 对象锁
      */
-    protected final Map<String,Object> lockMap =new HashMap<>();
+    protected final Map<String,Object> lockMap = new HashMap<>();
 
     protected RpcSerializer serializer;
 
@@ -55,9 +56,7 @@ public abstract class ClientInvokerCenter implements ConnectionManager {
             connectServer.close();
             log.info("connectServer[{}] close successfully", connectServer);
         });
-        /**
-         * 清理第一个资源
-         */
+        // 清理第一个资源
         clientServers.values().stream().findFirst().ifPresent(ConnectServer::cleanStaticResource);
     }
     public void removeTimeoutRespFromPool(String reqId){

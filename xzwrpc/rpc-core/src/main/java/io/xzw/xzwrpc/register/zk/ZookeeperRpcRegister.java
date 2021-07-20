@@ -11,6 +11,9 @@ import org.apache.curator.framework.recipes.cache.CuratorCache;
 import org.apache.curator.framework.recipes.cache.CuratorCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import java.util.List;
+/**
+ * @author xzw
+ */
 public abstract class ZookeeperRpcRegister implements RpcRegister {
     protected String zkConnStr;
     protected CuratorFramework client;
@@ -27,7 +30,7 @@ public abstract class ZookeeperRpcRegister implements RpcRegister {
     @Override
     public void stop() {
         // 在client不为null，并且客户端的状态本身没有关闭的条件下进行
-        if(this.client!=null && CuratorFrameworkState.STOPPED != this.client.getState()){
+        if(this.client != null && CuratorFrameworkState.STOPPED != this.client.getState()){
             this.client.close();
         }
     }
@@ -36,17 +39,15 @@ public abstract class ZookeeperRpcRegister implements RpcRegister {
 
     @Override
     public void registerListeners(List<CuratorCacheListener> listenerLists) {
-
-        // 传入的listenerList是对zk节点的监听
-        /*
+        /**
+        传入的listenerList是对zk节点的监听
         CuratorCache.builder(client,NetConstant.FILE_SEPARATOR)
         第一个参数就是传入的客户端
         第⼆个参数就是监听节点的路径
          */
-
         /**
          * 观察ZNode的子节点并缓存状态，如果ZNode的子节点被创建，更新或者删除，那么Path Cache会更新缓存，
-         *并且触发事件给注册的监听器。Path Cache是通过PathChildrenCache类来实现的，监听器注册是通过
+         * 并且触发事件给注册的监听器。Path Cache是通过PathChildrenCache类来实现的，监听器注册是通过
          * PathChildrenCacheListener。
          */
         CuratorCache cache = CuratorCache.builder(client,NetConstant.FILE_SEPARATOR).build();

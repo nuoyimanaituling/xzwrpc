@@ -1,14 +1,12 @@
 package io.xzw.xzwrpc.stub.invoker.component;
-
-
 import io.xzw.xzwrpc.serializer.RpcSerializer;
 import io.xzw.xzwrpc.stub.net.Client;
 import io.xzw.xzwrpc.stub.net.common.ClientInvokerCenter;
-
 import java.util.List;
 
 /**
  * 客户端服务调用单元
+ * @author xzw
  */
 public class InvokerClientCenter {
     private final Class<? extends RpcSerializer> serializerClazz;
@@ -21,12 +19,12 @@ public class InvokerClientCenter {
 
     public InvokerClientCenter(Class<? extends RpcSerializer> serializerClazz, Class<? extends ClientInvokerCenter> clientClazz )
     {
-        this.serializerClazz =serializerClazz;
-        this.clientClazz =clientClazz;
+        this.serializerClazz = serializerClazz;
+        this.clientClazz = clientClazz;
     }
 
     public void afterSetProperties() throws Exception{
-        this.clientCore =clientClazz.newInstance();
+        this.clientCore = clientClazz.newInstance();
         RpcSerializer serializer = serializerClazz.newInstance();
         this.clientCore.setSerializer(serializer);
     }

@@ -16,22 +16,7 @@ public class Test1 {
 
 //        Test1 test1 =new Test1();
 //        test1.getindex();
-//
-
-    }
-
-    public void getindex(){
-
-
-        setLock();
-        System.out.println(1);
     }
 
 
-    public void setLock(){
-
-
-        return;
-
-    }
 }

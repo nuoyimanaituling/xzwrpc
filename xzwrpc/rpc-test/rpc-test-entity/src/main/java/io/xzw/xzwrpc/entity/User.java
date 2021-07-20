@@ -6,6 +6,9 @@ import lombok.Data;
 import java.io.Serializable;
 
 
+/**
+ * @author xzw
+ */
 @Data
 @Builder
 public class User implements Serializable {

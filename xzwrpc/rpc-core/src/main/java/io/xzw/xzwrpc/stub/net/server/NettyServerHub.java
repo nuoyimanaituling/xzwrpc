@@ -4,6 +4,9 @@ import io.xzw.xzwrpc.serializer.RpcSerializer;
 import io.xzw.xzwrpc.stub.net.Server;
 import io.xzw.xzwrpc.stub.net.common.ProviderInvokerCenter;
 
+/**
+ * @author xzw
+ */
 public class NettyServerHub implements Server {
 
     private final NettyServer nettyServer;
@@ -25,7 +28,7 @@ public class NettyServerHub implements Server {
     }
     @Override
     public void start() {
-        if(this.nettyServer!=null && this.invokerCore!=null){
+        if(this.nettyServer != null && this.invokerCore != null){
             new Thread(()->{
                 this.nettyServer.run(invokerCore);
             },"xzw-rpc-server-thread").start();

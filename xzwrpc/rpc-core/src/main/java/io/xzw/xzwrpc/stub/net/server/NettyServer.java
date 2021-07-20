@@ -23,22 +23,44 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author xzw
+ */
 @Slf4j
 public class NettyServer {
 
+    /**
+     * 端口号
+     */
     private final int port;
 
+    /**
+     * 序列化器
+     */
     private final RpcSerializer serializer;
 
-    // 设置channelGroup 存放多客户端
+    /**
+     * 设置channelGroup 存放多客户端
+     */
     private final ChannelGroup channels;
 
+    /**
+     * 请求处理线程池
+     */
     private EventLoopGroup bossGroup;
 
+    /**
+     * 连接处理线程池
+     */
     private EventLoopGroup workerGroup;
-    //设置异步结果
+
+    /**
+     * 设置异步结果
+     */
     private ChannelFuture channelFuture;
-    // 设置全局请求id(递增)
+    /**
+     * 设置全局请求id(递增)
+     */
     private final AtomicInteger globalReqNums;
 
     public NettyServer(Integer port,RpcSerializer serializer){
@@ -46,13 +68,14 @@ public class NettyServer {
         this.serializer =serializer;
         // 根据全局的eventExecutor来对组里的channel进行通知
         this.channels =new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-        /**
-         * 用来判断线程池是不是还有请求没有处理完
-         */
+
+        // 用来判断线程池是不是还有请求没有处理完
         this.globalReqNums =new AtomicInteger();
     }
+
     /**
      * NettyServer启动器
+     * @param invokerCore 服务端调用中心
      */
     public void run(ProviderInvokerCenter invokerCore){
         int core =Runtime.getRuntime().availableProcessors();
@@ -68,7 +91,7 @@ public class NettyServer {
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
+                        protected void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(new NettyDecoder(RpcRequest.class, serializer))
                                     .addLast(new NettyEncoder(RpcResponse.class, serializer))
                                     .addLast(new ServerHandler(invokerCore, channels, globalReqNums));
@@ -90,16 +113,14 @@ public class NettyServer {
         }
     }
 
+
     /**
      * 关闭当前server，做一些资源清理工作：
-     *
      */
     public void  close(){
        ServerHandler.serverHandlerClose();
-        /**
-         * 判断是不是还有请求没有处理完
-         */
-       if(this.globalReqNums.get()>0){
+        // 判断是不是还有请求没有处理完
+       if(this.globalReqNums.get() > 0){
            try {
                TimeUnit.SECONDS.sleep(10);
            } catch (InterruptedException e) {
@@ -117,14 +138,10 @@ public class NettyServer {
             this.workerGroup.shutdownGracefully();
         }
         log.info("xzw-rpc netty server has been closed");
-
     }
-
     public boolean isValid(){
-
-        return this.channelFuture!=null &&this.channelFuture.channel().isActive();
+        return this.channelFuture != null &&this.channelFuture.channel().isActive();
     }
-
 
     @Override
     public String toString() {

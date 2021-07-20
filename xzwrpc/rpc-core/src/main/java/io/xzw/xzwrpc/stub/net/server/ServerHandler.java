@@ -14,34 +14,47 @@ import io.xzw.xzwrpc.stub.net.params.RpcResponse;
 import io.xzw.xzwrpc.util.OSHealthCheck;
 import io.xzw.xzwrpc.util.ThreadPoolUtil;
 import lombok.extern.slf4j.Slf4j;
-
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author xzw
+ */
 @Slf4j
 public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     private final ProviderInvokerCenter invokerCore;
+
     private final ChannelGroup channels;
+
     private static volatile boolean SERVER_STATUS;
+
     private volatile boolean channelClosing;
+
     private volatile long msgTimeout;
+
     private final Set<String> reqIds;
+
     private final AtomicInteger globalReqNums;
+
     public ServerHandler(ProviderInvokerCenter invokerCore, ChannelGroup channels, AtomicInteger globalReqNums){
-        this.invokerCore =invokerCore;
-        this.channels =channels;
-        this.reqIds =new HashSet<>();
+        this.invokerCore = invokerCore;
+        this.channels = channels;
+        this.reqIds = new HashSet<>();
         this.msgTimeout = System.currentTimeMillis();
-        this.globalReqNums =globalReqNums;
+        this.globalReqNums = globalReqNums;
     }
-    @Override
+
     /**
      * 处理请求
+     * @param ctx 处理器上下文
+     * @param msg 请求消息
+     * @throws Exception
      */
-    protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) throws Exception {
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg){
         ThreadPoolUtil.defaultRpcClientExecutor().execute(()->{
             try {
                 if (invokerCore.valid(msg)) {
@@ -51,13 +64,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
                         collectMessageData(channel, msg);
                         RpcResponse response = invokerCore.requestComingBellRing(msg);
                         channel.writeAndFlush(response);
-                        /**
-                         * reqIds.remove代表此时服务治理已经收集完了可以删除了
-                         */
+                        // reqIds.remove代表此时服务治理已经收集完了可以删除了
                         reqIds.remove(msg.getRequestId());
-                        /**
-                         * 这里引入globalReqNums实际上是判断是不是线程池还在处理请求，如果不为0，则代表还有全局请求
-                         */
+                        // 这里引入globalReqNums实际上是判断是不是线程池还在处理请求，如果不为0，则代表还有全局请求
                         globalReqNums.decrementAndGet();
                     }
                 }
@@ -72,15 +81,14 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             channel.writeAndFlush(replyHealthCheck(msg));
             return false;
         }else if(msg.getRequestId().startsWith(NetConstant.IDLE_CHANNEL_CLOSE_REQ_ID)){
-            channelClosing =true;
+            channelClosing = true;
             /**
              * 说明已经超时
              * 如果msgTimeout小于当前时间的话，那么就代表已经超时，就说明最近一次的信息已经到达那么可以正常关闭了，或者没有在进行服务治理信息收集时才会赞成关闭
              */
-            boolean approval =msgTimeout<System.currentTimeMillis() || reqIds.isEmpty();
-            /**
-             * 实现自动断开连接的功能
-             */
+            boolean approval = msgTimeout < System.currentTimeMillis() || reqIds.isEmpty();
+
+            // 实现自动断开连接的功能
             log.debug("[xzw-rpc] idle-channel close asking form {} and server says [{}]", channel.remoteAddress(), approval ? "ok" : "nope");
             if(approval){
                 channel.writeAndFlush(HeartBeat.channelCloseRespSuccess());
@@ -90,11 +98,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             }
             return false;
         }
-        /***
-         * 如果服务端调用关闭handler，那么此时消息预处理就会经过此层逻辑，即服务端关闭
-         */
+        // 如果服务端调用关闭handler，那么此时消息预处理就会经过此层逻辑，即服务端关闭
         else if(channelClosing || !ServerHandler.SERVER_STATUS){
-
             if (channel.isActive()&& channel.isWritable()){
                 channel.writeAndFlush(RpcResponse.builder().code(-1).exception(new ServerClosingException()).build());
                 return false;
@@ -104,41 +109,37 @@ public class ServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
     }
     /**
      * 返回健康检测信息
-     * @return
+     * @return 返回健康检测结果
      */
     private RpcResponse replyHealthCheck(RpcRequest msg){
-        long latency =System.currentTimeMillis() -msg.getCreateTimeMills();
+        long latency = System.currentTimeMillis() -msg.getCreateTimeMills();
         BigDecimal cpuLoad = OSHealthCheck.getCpuLoad();
         BigDecimal memLoad = OSHealthCheck.getMemLoad();
         return HeartBeat.healthResp(cpuLoad,memLoad,latency);
     }
 
-
     /**
      * 收集message的一些信息用于简单的服务治理
-     * @param channel
-     * @param msg
+     * @param channel 客户端channel
+     * @param msg 请求消息
      */
     private void collectMessageData(Channel channel,RpcRequest msg){
-
         reqIds.add(msg.getRequestId());
-        channelClosing =false;
+        channelClosing = false;
         channels.add(channel);
         long reqTimeOut =msg.getTimeout()+msg.getCreateTimeMills();
-        /**
-         * 收集最近一次的超时时间
-         */
-        if(msgTimeout<reqTimeOut){
-            msgTimeout =reqTimeOut;
+        // 收集最近一次的超时时间
+        if(msgTimeout < reqTimeOut){
+            msgTimeout = reqTimeOut;
         }
     }
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
         log.error("xzw-rpc server catch a exception, ctx is closing", cause);
         ctx.close();
     }
     public static void serverHandlerOpen(){
-        SERVER_STATUS =true;
+        SERVER_STATUS = true;
     }
 
     public static void serverHandlerClose() {

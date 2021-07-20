@@ -4,10 +4,11 @@ import io.xzw.xzwrpc.stub.net.common.ClientInvokerCenter;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 /**
+ * @author xzw
  *  clientInvokerCore 又实现了ConnectManage
  */
 public class NettyClientInvoker extends ClientInvokerCenter {
-    private final Lock lock =new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
     @Override
     public Client getClient(String addr) {
         /**
@@ -18,37 +19,31 @@ public class NettyClientInvoker extends ClientInvokerCenter {
         return new NettyClient(this.clientServers.get(addr),respPool);
     }
     private void initClientServerIfAbsent(String addr){
-        /**
-         * 说明已经初始化过了
-         */
+        // 说明已经初始化过了
         if(this.clientServers.containsKey(addr)){
             return;
         }
         setLockIfAbsent(addr);
-        /**
-         * 避免重复初始化
-         */
+        // 避免重复初始化
         synchronized (this.lockMap.get(addr)){
             if (this.clientServers.containsKey(addr)){
                 return;
             }
-            NettyClientServer clientServer =new NettyClientServer(this.serializer);
-            /**
-             * 执行init方法相当于在进行启动客户端连接的过程。
-             */
+            NettyClientServer clientServer = new NettyClientServer(this.serializer);
+
+            // 执行init方法相当于在进行启动客户端连接的过程。
             clientServer.init(addr,new ClientHandler(respPool,this.clientServers,this.availableAnalyzer));
             this.clientServers.put(addr,clientServer);
         }
     }
 
     private void setLockIfAbsent(String addr){
-
         // 因为在并发添加，所以此时需要在添加的时候加锁
         if(this.lockMap.containsKey(addr)){
             return;
         }
+        lock.lock();
         try{
-            lock.lock();
             if(!this.lockMap.containsKey(addr)){
                 this.lockMap.put(addr,new Object());
             }

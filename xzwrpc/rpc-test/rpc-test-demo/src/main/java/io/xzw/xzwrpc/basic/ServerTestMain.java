@@ -4,6 +4,9 @@ import io.xzw.xzwrpc.service.impl.UserServiceImpl;
 import io.xzw.xzwrpc.stub.provider.boot.RpcServerMain;
 
 
+/**
+ * @author xzw
+ */
 public class ServerTestMain {
 
     public static void main(String[] args) {

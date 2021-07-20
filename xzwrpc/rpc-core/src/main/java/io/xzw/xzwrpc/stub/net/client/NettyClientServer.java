@@ -18,10 +18,11 @@ import io.xzw.xzwrpc.stub.net.params.RpcResponse;
 import io.xzw.xzwrpc.util.NetUtil;
 import io.xzw.xzwrpc.util.ThreadPoolUtil;
 import lombok.extern.slf4j.Slf4j;
-
-
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author xzw
+ */
 @Slf4j
 public class NettyClientServer extends ConnectServer {
 
@@ -36,16 +37,14 @@ public class NettyClientServer extends ConnectServer {
     public void init(String address, ClientHandler clientHandler) {
         initEventLoop();
         String[] hostAndPort = NetUtil.getHostAndPort(address);
-        this.host =hostAndPort[0];
-        this.port =Integer.parseInt(hostAndPort[1]);
+        this.host = hostAndPort[0];
+        this.port = Integer.parseInt(hostAndPort[1]);
         try{
-            Bootstrap bootstrap =new Bootstrap();
+            Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(nioEventLoopGroup).channel(NioSocketChannel.class)
                     .option(ChannelOption.TCP_NODELAY,true)
                     .option(ChannelOption.SO_KEEPALIVE,true)
-                    /**
-                     * 设置客户端连接服务器最大时间
-                     */
+                    // 设置客户端连接服务器最大时间
                     .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,10000)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -69,29 +68,22 @@ public class NettyClientServer extends ConnectServer {
 
     @Override
     public void close() {
-        if (this.channel!=null){
+        if (this.channel != null){
             this.channel.close();
         }
-
     }
-
     @Override
     public boolean isValid() {
-        return this.channel!=null && this.channel.isActive();
+        return this.channel != null && this.channel.isActive();
     }
-
     @Override
     public void sendAsync(RpcRequest request) {
-        ThreadPoolUtil.defaultRpcClientExecutor().execute(()->{
-            channel.writeAndFlush(request);
-        });
+        ThreadPoolUtil.defaultRpcClientExecutor().execute(()-> channel.writeAndFlush(request));
     }
 
     @Override
     public void send(RpcRequest request) {
-
         channel.writeAndFlush(request);
-
     }
 
     @Override
@@ -101,16 +93,15 @@ public class NettyClientServer extends ConnectServer {
 
     @Override
     public void cleanStaticResource() {
-        if(nioEventLoopGroup!=null && nioEventLoopGroup.isTerminated()){
+        if(nioEventLoopGroup != null && nioEventLoopGroup.isTerminated()){
             nioEventLoopGroup.shutdownGracefully();
         }
     }
-
     public void initEventLoop(){
-        if (nioEventLoopGroup ==null){
+        if (nioEventLoopGroup == null){
             synchronized (NettyClientServer.class){
-                if (nioEventLoopGroup==null){
-                    nioEventLoopGroup =new NioEventLoopGroup();
+                if (nioEventLoopGroup == null){
+                    nioEventLoopGroup = new NioEventLoopGroup();
                 }
             }
         }

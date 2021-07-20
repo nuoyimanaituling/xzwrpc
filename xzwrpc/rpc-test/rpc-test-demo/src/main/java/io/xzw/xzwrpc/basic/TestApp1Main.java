@@ -7,6 +7,9 @@ import io.xzw.xzwrpc.service.UserService;
 import io.xzw.xzwrpc.stub.invoker.factory.RpcInvokerFactory;
 
 
+/**
+ * @author xzw
+ */
 public class TestApp1Main {
     public static void main(String[] args) throws InterruptedException {
         RpcInvokerFactory factory = new RpcInvokerFactory("127.0.0.1:2181");

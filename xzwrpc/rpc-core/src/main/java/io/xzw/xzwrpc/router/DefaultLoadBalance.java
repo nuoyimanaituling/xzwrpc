@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-// 使用的是轮询的负载均衡方式
+/**
+ * 使用的是轮询的负载均衡方式
+ * @author xzw
+ */
 public class DefaultLoadBalance extends LoadBalance {
-
 
     private final AtomicInteger cnt =new AtomicInteger();
     @Override

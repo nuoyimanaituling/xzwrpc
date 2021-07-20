@@ -17,14 +17,16 @@ import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * 服务端本地代理
+ * @author xzw
+ */
 @Slf4j
 public class DelegateInvokerMethod {
 
@@ -43,41 +45,39 @@ public class DelegateInvokerMethod {
     private final List<Class<?>> retryException;
 
     public DelegateInvokerMethod(RefBean refBean, LoadBalance balance, InvokerClientCenter clientCenter){
-        this.invokerUnit =clientCenter;
-        this.loadBalance =balance;
+        this.invokerUnit = clientCenter;
+        this.loadBalance = balance;
 
-        this.routerClass =refBean.getRouterClass();
-        this.urls =refBean.getAvailUrls();
-        this.timeout =refBean.getTimeout();
-        this.retryTimes =refBean.getRetryTimes();
-        this.retryException =refBean.getRetryExceptions();
-        /**
-         * 在下面的逻辑中有
-         */
+        this.routerClass = refBean.getRouterClass();
+        this.urls = refBean.getAvailUrls();
+        this.timeout = refBean.getTimeout();
+        this.retryTimes = refBean.getRetryTimes();
+        this.retryException = refBean.getRetryExceptions();
+
+         // 在下面的逻辑中有该逻辑解释
         this.retryException.addAll(NetConstant.RPC_NEED_RETRY_EXS);
     }
 
     @RuntimeType
     public Object interceptor(@This Object target, @AllArguments Object[] args, @Origin Method method){
-        /**
-         * 先走过滤和路由逻辑，再走负载均衡逻辑
-         */
-        Class<?> iface =target.getClass().getInterfaces()[0];
-        RpcRequest request =RpcRequest.builder().methodName(method.getName()).classType(iface)
+        // 先走过滤和路由逻辑，再走负载均衡逻辑
+        Class<?> iface = target.getClass().getInterfaces()[0];
+        RpcRequest request = RpcRequest.builder().methodName(method.getName()).classType(iface)
                 .params(args).className(iface.getCanonicalName()).timeout(this.timeout).build();
-        /**
-         * filterAndRoute返回的是亚健康的url，过滤亚健康状态的url，自动实现故障转移
-         */
-        this.urls =filterAndRoute(urls,routerClass,method,args);
-        List<String> healthUrls =invokerUnit.filterSubHealth(this.urls);
-        RpcResponse rpcResponse=null;
-        Client client=null;
+
+        // filterAndRoute返回的是亚健康的url，过滤亚健康状态的url，自动实现故障转移
+        this.urls = filterAndRoute(urls,routerClass,method,args);
+        List<String> healthUrls = invokerUnit.filterSubHealth(this.urls);
+        RpcResponse rpcResponse = null;
+        Client client = null;
         int retryTimes =0;
         try{
             while(rpcResponse == null || rpcResponse.getException() != null){
-//                String url =loadBalance.select(healthUrls,this.urls);
-                String url ="127.0.0.1:7248";
-                client =invokerUnit.getInvokeClient(url);
+                String url = loadBalance.select(healthUrls,this.urls);
+                if (url == null){
+                    url = "127.0.0.1:7248";
+                }
+                client = invokerUnit.getInvokeClient(url);
                 String requestId = UUID.randomUUID().toString().replace("-","");
                 request.setRequestId(requestId);
                 request.setCreateTimeMills(System.currentTimeMillis());
@@ -85,7 +85,7 @@ public class DelegateInvokerMethod {
                  * 这里是核心逻辑，这里就是异步获取返回结果，这一段是核心逻辑
                  * 异步返回，返回后的结果可能是空的，因为客户端是异步发送的
                  */
-                FutureResp futureResp =client.send(request);
+                FutureResp futureResp = client.send(request);
                 rpcResponse = futureResp.get(request.getTimeout(), TimeUnit.MILLISECONDS);
                 /**
                  * 当返回结果异常为空时，说明rpcResponse的结果不为null，则退出循环
@@ -94,12 +94,12 @@ public class DelegateInvokerMethod {
                  * 或者超过三次也直接结束掉
                  * 不满足下面三个条件，才会进行重试
                  */
-                if(rpcResponse.getException()==null || retryTimes++>=this.retryTimes
+                if(rpcResponse.getException() == null || retryTimes++ >= this.retryTimes
                 || !this.retryException.contains(rpcResponse.getException().getClass())){
-                   if(retryTimes>0){
+                   if(retryTimes > 0){
                        log.debug("[xzw-rpc] rpc auto failover failed invoke");
                    }
-                   if (retryTimes<this.retryTimes){
+                   if (retryTimes < this.retryTimes){
                        invokerUnit.getClientCore().invokeSuccess(url);
                    }
                    break;
@@ -107,22 +107,17 @@ public class DelegateInvokerMethod {
                 // 之后进入重试阶段
                 cleanAfterInvokeFailed(requestId,url,healthUrls);
             }
-            if(rpcResponse.getException()!=null){
+            if(rpcResponse.getException() != null){
                 throw new ExecutionException(request.getClassName()+"invoke failed",rpcResponse.getException());
             }
-            if (!void.class.equals(method.getReturnType()) && rpcResponse.getData()!=null){
+            if (!void.class.equals(method.getReturnType()) && rpcResponse.getData() != null){
                 return method.getReturnType().cast(rpcResponse.getData());
             }
-        }catch (InterruptedException e) {
+        }catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }finally {
-            if (client!=null){
-
-                /**
-                 * 从future池中删除请求信息
-                 */
+        } finally {
+            if (client != null){
+                 // 从future池中删除请求信息
                 client.cleanAfterInvoke(request);
             }
         }
@@ -134,18 +129,13 @@ public class DelegateInvokerMethod {
         healthUrls.remove(url);
     }
     private List<String> filterAndRoute(List<String> urls,Class<?> clazz,Method method,Object[] args){
-
-        /**
-         * filterList相当于过滤链
-         */
+        // filterList相当于过滤链
         List<Filter> filterList = SpiPluginLoader.getFilterList();
-        List<String> res =new ArrayList<>();
+        List<String> res = new ArrayList<>();
         if (!filterList.isEmpty()){
-            for (Filter filter :filterList) {
-                for (String url:urls){
-                    /**
-                     * 添加过滤后的url
-                     */
+            for (Filter filter : filterList) {
+                for (String url : urls){
+                    // 添加过滤后的url
                     if (filter.filter(url,method,args)){
                         res.add(url);
                     }
@@ -153,16 +143,13 @@ public class DelegateInvokerMethod {
             }
         }
         else {
-            res =urls;
+            res = urls;
         }
         Router router = SpiPluginLoader.getRouterByClass(clazz);
-        if (router!=null){
-            res=router.route(res,method,args);
+        if (router != null){
+            res = router.route(res,method,args);
         }
         return res;
     }
-
-
-
 
 }

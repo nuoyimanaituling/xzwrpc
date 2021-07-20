@@ -30,9 +30,8 @@
         <spring.version>5.3.5</spring.version>
         <cglib.version>3.2.4</cglib.version>
         <springboot.version>2.4.3</springboot.version>
+        <junit.version>4.13.1</junit.version>
     </properties>
-
-
 
 
     <dependencyManagement>
@@ -122,6 +121,22 @@
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>${cglib.version}</version>
+            </dependency>
+            <!-- test dependency -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jmockit</groupId>
+                <artifactId>jmockit</artifactId>
+                <version>1.14</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.3.0</version>
             </dependency>
         </dependencies>
 
