@@ -14,21 +14,21 @@ maven clean package
 
 **启动服务端成功后**
 
-![image-20210715210547093](../typoraPicture/image-20210715210547093.png)
+![image-20210715210547093](https://github.com/nuoyimanaituling/xzwrpc/blob/comment_version/image/1.png)
 
 **启动客户端得到测试结果**
 
-![image-20210715210725001](../typoraPicture/image-20210715210725001.png)
+![image-20210715210725001](https://github.com/nuoyimanaituling/xzwrpc/blob/comment_version/image/2.png)
 
 #  XzwRpc核心模块架构图
 
 ## 服务端核心架构设计
 
-![image-20210715211145273](../typoraPicture/image-20210715211145273.png)
+![image-20210715211145273](https://github.com/nuoyimanaituling/xzwrpc/blob/comment_version/image/3.png)
 
 ## 客户端核心架构设计
 
-![image-20210715211200776](../typoraPicture/image-20210715211200776.png)
+![image-20210715211200776](https://github.com/nuoyimanaituling/xzwrpc/blob/comment_version/image/5.png)
 
 ##  rpc-core模块实现说明
 
