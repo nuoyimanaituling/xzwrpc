@@ -99,7 +99,7 @@ public class HealthAvailableAnalyzer {
          * 2：cpu负载率小于0.9
          * 3：内存使用率低于0.8
          */
-        boolean health =healthInfo.getLatency()<500 && healthInfo.getCpuLoadPercent().compareTo(new BigDecimal("0.9"))<0
+        boolean health =healthInfo.getLatency() < 500 && healthInfo.getCpuLoadPercent().compareTo(new BigDecimal("0.9"))<0
                 && healthInfo.getMemLoadPercent().compareTo(new BigDecimal("0.8"))<0;
         if(health){
             if(this.subHealthUrl.contains(url)){

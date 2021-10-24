@@ -157,7 +157,7 @@ public class DelegateInvokerMethod {
         else {
             res =urls;
         }
-        Router router =RpcSpiPluginLoader.getRouterByClass(clazz);
+        Router router = RpcSpiPluginLoader.getRouterByClass(clazz);
         if (router!=null){
             res=router.route(res,method,args);
         }

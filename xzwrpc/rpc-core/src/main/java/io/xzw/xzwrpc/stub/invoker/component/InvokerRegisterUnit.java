@@ -106,7 +106,7 @@ public class InvokerRegisterUnit extends ZkRpcRegister {
                 return;
             }
             /**
-             * 如果是删除，那么直接拿到服务名后，可以在availPathmap的url list里面进行删除
+             * 如果是删除，那么直接拿到服务名后，可以在availPathmap的url list里面进行删除，并删除连接
              */
             if(event.getType()==PathChildrenCacheEvent.Type.CHILD_REMOVED){
                 availPathMap.get(str[1]).remove(str[2]);

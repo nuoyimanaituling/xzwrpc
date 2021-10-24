@@ -22,7 +22,7 @@ public class RpcFutureResp implements Future<RpcResponse> {
     private final Lock lock =new ReentrantLock();
     private final Condition fin =lock.newCondition();
     public void RespBackBellRing(RpcResponse resp){
-        // 猜测这一部分逻辑是该方法之前,就已经被调用get方法来异步获取resp
+        //这一部分逻辑是该方法之前,就已经被调用get方法来异步获取resp
         // 此时resp来了，开始唤醒等待的阻塞线程
         this.resp =resp;
 

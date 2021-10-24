@@ -70,13 +70,13 @@ public class ClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
          */
         if(evt instanceof IdleStateEvent){
             String serverAddr =ctx.channel().remoteAddress().toString().substring(1);
-            if(idleHeartBeatTimes.get()<10){
+            if(idleHeartBeatTimes.get() < 10){
                 log.debug("[xzw-rpc] send heart beat request");
                 ctx.channel().writeAndFlush(HeartBeat.healthReq());
             }
             else {
                 log.debug("[xzw-rpc] send idle channel close request");
-                if (idleHeartBeatTimes.get() ==10){
+                if (idleHeartBeatTimes.get() == 10){
                     this.clientServers.remove(serverAddr);
                     this.availableAnalyzer.removeUrl(serverAddr);
                 }

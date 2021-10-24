@@ -48,8 +48,8 @@ public class WeightRandomLoadBalance extends LoadBalance {
              * 热启动流程分析：interval是到现在已经启动了多少分钟
              * 规定当启动十分钟的话就代表完全预热了
              */
-            long interval =(System.currentTimeMillis()-value)/1000;
-            int loadFactor =FULL_LOAD_FACTOR;
+            long interval = (System.currentTimeMillis()-value)/1000;
+            int loadFactor = FULL_LOAD_FACTOR;
             if(interval<FULL_LOAD_FACTOR){
                 // 向上取整
                 loadFactor =(int) interval+1;
